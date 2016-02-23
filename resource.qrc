@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>kds_hit.ini</file>
+    </qresource>
+</RCC>
