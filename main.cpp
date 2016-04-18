@@ -355,8 +355,9 @@ begin:      ba.clear(); // очистим приёмный буффер
                qDebug() << "IDLE";
                delay(100); // сымитируем задержечку на время измерений
                // ответ посылкой 0xAA;0xAA;0x08;9;"IDLE#OK";7;CRC;
-               answer("IDLE#OK");
-               qDebug() << "ANSWER IDLE#OK";
+               QString tmp=QString("IDLE#OK")+"1"+'\r'+'\n'; // номер комплекта плат 0...3.   \n - просто для удобства вывода на экран для д.Гриши.
+               answer(qPrintable(tmp));
+               qDebug() << QString("ANSWER")+"IDLE#OK"+"0\n";
             }
             //======= Определение полярности батареи
             text = codec->fromUnicode("Polar#");
@@ -414,7 +415,7 @@ begin:      ba.clear(); // очистим приёмный буффер
                 answer("   #UocPB OK", codeUocg);
             }
             //================напряжение на корпусе========
-            fU=fUlimit_case-1 + my_rand(2); // от нижнего предела отнимем вольт, и прибавим случайное в пределах 1 вольт
+            fU=fUlimit_case-1 + 1.5*my_rand(2); // от нижнего предела отнимем вольт, и прибавим случайное в пределах 1.5 вольт
             qint16 codeUcase =fU/fUrefer2*codeADCrefer2+codeOffset2;
 
             text = codec->fromUnicode("UcaseP#");
@@ -463,7 +464,7 @@ begin:      ba.clear(); // очистим приёмный буффер
                 qDebug() << "Rins?";
                 delay(100); // сымитируем задержечку на время измерений
                 // ответ посылкой
-                answer("   #Rins nnOK", 0x9300); //0x099
+                answer("   #Rins nnOK", 0xffff); //0x334); //0x0795); //0x099
             }
             //======================Проверка НРЦ групп
 
@@ -563,6 +564,26 @@ begin:      ba.clear(); // очистим приёмный буффер
                 delay(100); // сымитируем задержечку на время измерений
                 // ответ: напряжение в сотых
                 answer("   #UccPB OK", codeUocg);
+            }
+            //======================Проверка НЗЦ БП УУТББ (с контролем тока)
+            text = codec->fromUnicode("UccPBI#");
+            if(ba.contains(text)) // выбран режим напряжения замкнутой цепи БП УУТББ
+            {
+               qDebug() << "UccPBI";
+               delay(100); // сымитируем задержечку на время измерений
+               answer(ba+"OK");
+            }
+            text = codec->fromUnicode("UccPBI?#");
+            if(ba.contains(text)) // выбран режим запрос напряжения замкнутой цепи БП УУТББ
+            {
+                fU=fUlimit_ccpb-0.2 + 0.4*my_rand(2);
+                codeUocg=fU/coefADC1+codeOffset1;
+                //qDebug()<<"fUlimit_ccpb"<<fUlimit_ccpb<<"fUlimit_ccpb-0.1"<<(fUlimit_ccpb-0.1)<<"1*my_rand(2)"<<(1*my_rand(2))<<"coefADC1"<<coefADC1<<"codeOffset1"<<codeOffset1;
+                qDebug()<<"fU"<<fU<<"codeUocg"<<showbase<<uppercasedigits<<hex<<codeUocg;
+                qDebug() << "UccPBI?";
+                delay(100); // сымитируем задержечку на время измерений
+                // ответ: напряжение в сотых
+                answer("   #UccPBI OK", codeUocg);
             }
 
             //qDebug() << text;
