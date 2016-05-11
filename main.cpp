@@ -585,6 +585,14 @@ begin:      ba.clear(); // очистим приёмный буффер
                 // ответ: напряжение в сотых
                 answer("   #UccPBI OK", codeUocg);
             }
+            //======= Имитация Техно.Заглушки Х6
+            text = codec->fromUnicode("StubX6#");
+            if(ba.contains(text)) // выбран режим полярности батареи
+            {
+               qDebug() << "StubX6";
+               delay(100); // сымитируем задержечку на время измерений
+               answer("StubX6#OK");
+            }
 
             //qDebug() << text;
         }
